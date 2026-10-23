@@ -13,7 +13,12 @@ const { links, event } = useAppConfig()
         </p>
         <div class="mt-6">
           <p class="text-xs tracking-widest text-fg-muted uppercase">Organised by</p>
-          <img src="/img/iiumai-text.png" alt="iiumai" class="mt-2 h-10 w-auto">
+          <div class="mt-3 flex items-center gap-4">
+            <img src="/img/rgc.png" alt="IIUM Rhythm Game Club" class="h-14 w-auto">
+            <span class="h-10 w-px bg-fg/20" aria-hidden="true" />
+            <img src="/img/iiumai-text.png" alt="iiumai" class="h-10 w-auto">
+          </div>
+          <p class="mt-2 text-xs text-fg-muted">IIUM Rhythm Game Club · iiumai (maimai division)</p>
         </div>
       </div>
       <div>
