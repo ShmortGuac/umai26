@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { event, links } = useAppConfig()
-const { data: registrations } = await useFetch('/api/registrations')
 
 const facts = [
   { title: 'Double Elimination', body: 'Lose once and you drop to the lower bracket. You are only out after two losses.' },
@@ -43,10 +42,6 @@ const faqs = [
       <div class="mt-8">
         <Countdown :target="event.finalsDate" />
       </div>
-      <p v-if="registrations?.count" class="mt-8 rounded-full border border-orchid/30 bg-ink-800/70 px-5 py-2 text-fg-muted">
-        <span class="font-display text-xl font-bold text-gradient">{{ registrations.count }}</span>
-        {{ registrations.count === 1 ? 'player has' : 'players have' }} registered so far
-      </p>
       <div class="mt-10 flex flex-wrap justify-center gap-3">
         <a :href="links.registration" target="_blank" rel="noopener" class="btn-primary px-7 py-3 text-lg">Register now</a>
         <NuxtLink to="/rules" class="btn-ghost px-7 py-3 text-lg">Read the rules</NuxtLink>
