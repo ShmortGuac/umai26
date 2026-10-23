@@ -26,9 +26,9 @@ export default defineAppConfig({
   links: {
     registration: 'https://forms.gle/Z4g3ZGGrT1d4BSFU9',
     discord: 'https://discord.com/invite/qUEvdDE8XY',
-    donation: '#',
-    // e.g. '/img/donation-qr.png' after dropping the image into public/img
-    donationQr: '',
+    // Optional online payment link; the button is hidden while empty.
+    donation: '',
+    donationQr: '/img/donation-qr.png',
     rulebookPdf: '/U-mai26-Rulebook.pdf',
     instagram: '#',
     tiktok: '#',

@@ -11,3 +11,6 @@ dist
 !.env.example
 *.log
 .DS_Store
+
+# Full bank QR screenshot (shows account name); the site uses a cropped copy
+reference/qr.jpeg
