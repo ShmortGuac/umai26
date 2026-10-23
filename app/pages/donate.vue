@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const { event, links } = useAppConfig()
+const { event, links, prizePool } = useAppConfig()
 useHead({ title: "Donate · U-mai '26" })
 
 const uses = [
-  { title: 'Prize pool', body: 'Donations contribute directly to the prizes for the top players.' },
+  { title: 'Prize pool', body: `Donations contribute directly to the prizes for the top players. The pool currently stands at ${prizePool.total}.` },
   { title: 'Running the event', body: 'Venue costs, equipment, streaming and everything else on finals day.' },
   { title: 'A thank-you gift', body: `Donate more than ${event.donationGiftThreshold} and receive a special U-mai gift.` },
 ]

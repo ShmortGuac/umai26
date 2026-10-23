@@ -11,6 +11,15 @@ export default defineAppConfig({
     fee: 'RM20',
     donationGiftThreshold: 'RM15',
   },
+  // Update these as donations come in. The total is shown as-is, so keep it in sync with the places.
+  prizePool: {
+    total: 'RM150',
+    places: [
+      { place: '1st', amount: 'RM75' },
+      { place: '2nd', amount: 'RM45' },
+      { place: '3rd', amount: 'RM30' },
+    ],
+  },
   timeline: [
     { label: 'Registrations', start: '2026-10-10', end: '2026-11-29', display: '10 Oct – 29 Nov', note: 'Still open during prelims' },
     { label: 'Preliminary Rounds', start: '2026-11-15', end: '2026-11-29', display: '15 Nov – 29 Nov', note: 'Online' },

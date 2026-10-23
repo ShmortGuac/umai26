@@ -98,6 +98,8 @@ const faqs = [
       </div>
     </section>
 
+    <PrizePool />
+
     <!-- Donate teaser -->
     <section class="container-x mt-24">
       <div class="card relative overflow-hidden p-8 sm:p-12">
