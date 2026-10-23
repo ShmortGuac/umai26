@@ -16,13 +16,6 @@ export default defineAppConfig({
     { label: 'Preliminary Rounds', start: '2026-11-15', end: '2026-11-29', display: '15 Nov – 29 Nov', note: 'Online' },
     { label: 'Knockout Rounds', start: '2026-12-12', end: '2026-12-12', display: '12 Dec', note: 'Sunway Wangsa Walk' },
   ],
-  // Prelim submissions are accepted between these instants (Malaysia time).
-  prelims: {
-    opens: '2026-11-15T00:00:00+08:00',
-    closes: '2026-11-29T23:59:59+08:00',
-    // Fill in once the songs are announced.
-    songs: ['Song 1 — TBA', 'Song 2 — TBA', 'Song 3 — TBA'],
-  },
   links: {
     registration: 'https://forms.gle/Z4g3ZGGrT1d4BSFU9',
     discord: 'https://discord.com/invite/qUEvdDE8XY',

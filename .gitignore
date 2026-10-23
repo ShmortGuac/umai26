@@ -14,3 +14,7 @@ dist
 
 # Full bank QR screenshot (shows account name); the site uses a cropped copy
 reference/qr.jpeg
+
+# Registration exports contain personal data; never commit them
+reference/*.csv
+*.csv

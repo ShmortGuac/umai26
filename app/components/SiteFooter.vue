@@ -27,7 +27,6 @@ const { links, event } = useAppConfig()
           <li><NuxtLink to="/rules" class="hover:text-white">Rulebook</NuxtLink></li>
           <li><NuxtLink to="/schedule" class="hover:text-white">Schedule &amp; Venue</NuxtLink></li>
           <li><NuxtLink to="/donate" class="hover:text-white">Donate</NuxtLink></li>
-          <li><NuxtLink to="/portal" class="hover:text-white">Player Portal</NuxtLink></li>
         </ul>
       </div>
       <div>

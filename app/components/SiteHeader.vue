@@ -9,7 +9,6 @@ const nav = [
   { to: '/rules', label: 'Rules' },
   { to: '/schedule', label: 'Schedule' },
   { to: '/donate', label: 'Donate' },
-  { to: '/portal', label: 'Player Portal' },
 ]
 </script>
 

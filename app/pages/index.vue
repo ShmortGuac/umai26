@@ -11,7 +11,7 @@ const facts = [
 const steps = [
   { title: 'Register', body: 'Fill in the registration form with your student ID photo and pay the RM20 fee.' },
   { title: 'Join the Discord', body: 'All announcements, prelim songs and contact go through the Discord server.' },
-  { title: 'Play the prelims', body: 'Record the 3 prelim songs in one credit and submit through the Player Portal.' },
+  { title: 'Play the prelims', body: 'Record the 3 prelim songs in one credit and submit your video as announced in the Discord.' },
   { title: 'Make the top 16', body: 'Qualifiers are seeded from prelim results and play at Sunway Wangsa Walk.' },
 ]
 
@@ -19,7 +19,7 @@ const faqs = [
   { q: 'Who can join?', a: 'Any student at a university or higher education institution with an active matric/student number. You will upload a photo of your student ID as proof.' },
   { q: 'Do I need to be a top player?', a: 'Not at all. U-mai is for the university maimai community at every level. The prelims decide seeding and the top 16.' },
   { q: 'Prelims have started. Can I still register?', a: 'Yes! Registration stays open until prelims close on 29 November. Just make sure you register and submit your prelim video before the deadline.' },
-  { q: 'How do I submit my prelim run?', a: 'Record yourself playing all 3 prelim songs in a single credit, upload the video (unlisted YouTube or Google Drive), then submit the link in the Player Portal before 29 November.' },
+  { q: 'How do I submit my prelim run?', a: 'Record yourself playing all 3 prelim songs in a single credit, upload the video (unlisted YouTube or Google Drive), and submit the link before 29 November. Submission details will be announced in the Discord.' },
   { q: 'Can I switch maimai accounts mid-tournament?', a: 'No. You must use the same Aime / Banapassport account and the same in-game name for the whole tournament.' },
   { q: 'How are matches decided?', a: 'Each match is a 4-song set from an 8-chart pool. Highest total Achievement % wins, then DX Score, then a tiebreaker chart if still tied.' },
 ]

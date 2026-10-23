@@ -7,16 +7,6 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  runtimeConfig: {
-    public: {
-      supabaseUrl: '',
-      supabaseKey: '',
-    },
-  },
-  // The portal talks to Supabase from the browser only, so skip SSR there.
-  routeRules: {
-    '/portal/**': { ssr: false },
-  },
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
