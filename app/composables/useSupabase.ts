@@ -1,17 +1,19 @@
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
 
-export interface Profile {
+/** An approved player, imported from the Google Form responses. */
+export interface Player {
   id: string
-  display_name: string | null
+  email: string
+  name: string | null
+  discord: string | null
   ign: string | null
   university: string | null
-  discord: string | null
-  is_admin: boolean
+  imported_at: string
 }
 
 export interface Submission {
   id: string
-  user_id: string
+  player_id: string
   video_url: string
   song1: number | null
   song2: number | null
@@ -31,7 +33,7 @@ export function useSupabase() {
   const { supabaseUrl, supabaseKey } = useRuntimeConfig().public
   if (!supabaseUrl || !supabaseKey) return null
   client ??= createClient(supabaseUrl, supabaseKey, {
-    auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true },
+    auth: { persistSession: true },
   })
   return client
 }

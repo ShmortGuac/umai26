@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Profile, Submission } from '~/composables/useSupabase'
+import type { Player, Submission } from '~/composables/useSupabase'
 
 useHead({ title: "Player Portal · U-mai '26" })
 
@@ -9,14 +9,12 @@ const { prelims, links } = useAppConfig()
 const prelimWindow = usePrelimWindow()
 
 const loading = ref(true)
-const profile = ref<Profile | null>(null)
+const player = ref<Player | null>(null)
+const isAdmin = ref(false)
 const submission = ref<Submission | null>(null)
 
-const profileForm = reactive({ display_name: '', ign: '', university: '', discord: '' })
 const subForm = reactive({ video_url: '', song1: '', song2: '', song3: '', notes: '', confirm: false })
-
-const savingProfile = ref(false)
-const savingSub = ref(false)
+const saving = ref(false)
 const message = ref<{ kind: 'ok' | 'error', text: string } | null>(null)
 let messageTimer: ReturnType<typeof setTimeout> | undefined
 watch(message, (m) => {
@@ -24,82 +22,62 @@ watch(message, (m) => {
   if (m) messageTimer = setTimeout(() => { message.value = null }, 5000)
 })
 
-const profileComplete = computed(() =>
-  !!(profile.value?.ign && profile.value?.university && profile.value?.discord))
-
 const selfTotal = computed(() => {
   const nums = [subForm.song1, subForm.song2, subForm.song3].map(Number)
   return nums.every(n => !Number.isNaN(n)) ? nums.reduce((a, b) => a + b, 0).toFixed(4) : '—'
 })
 
+const details = computed(() => [
+  { label: 'Name', value: player.value?.name },
+  { label: 'In-game name', value: player.value?.ign },
+  { label: 'University', value: player.value?.university },
+  { label: 'Discord', value: player.value?.discord },
+])
+
 async function load() {
   if (!supabase || !user.value) return
   loading.value = true
-  const [p, s] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.value.id).maybeSingle(),
-    supabase.from('prelim_submissions').select('*').eq('user_id', user.value.id).maybeSingle(),
+  // Filter by email explicitly: admins can read every player row.
+  const [p, a] = await Promise.all([
+    supabase.from('players').select('*').eq('email', (user.value.email ?? '').toLowerCase()).maybeSingle(),
+    supabase.rpc('is_admin'),
   ])
-  profile.value = p.data as Profile | null
-  submission.value = s.data as Submission | null
-  if (profile.value) {
-    profileForm.display_name = profile.value.display_name ?? ''
-    profileForm.ign = profile.value.ign ?? ''
-    profileForm.university = profile.value.university ?? ''
-    profileForm.discord = profile.value.discord ?? ''
-  }
-  if (submission.value) {
-    subForm.video_url = submission.value.video_url
-    subForm.song1 = submission.value.song1?.toString() ?? ''
-    subForm.song2 = submission.value.song2?.toString() ?? ''
-    subForm.song3 = submission.value.song3?.toString() ?? ''
-    subForm.notes = submission.value.notes ?? ''
+  player.value = p.data as Player | null
+  isAdmin.value = !!a.data
+  if (player.value) {
+    const s = await supabase.from('prelim_submissions').select('*').eq('player_id', player.value.id).maybeSingle()
+    submission.value = s.data as Submission | null
+    if (submission.value) {
+      subForm.video_url = submission.value.video_url
+      subForm.song1 = submission.value.song1?.toString() ?? ''
+      subForm.song2 = submission.value.song2?.toString() ?? ''
+      subForm.song3 = submission.value.song3?.toString() ?? ''
+      subForm.notes = submission.value.notes ?? ''
+    }
   }
   loading.value = false
 }
 
 watch(user, (u) => { if (u) load() }, { immediate: true })
 
-async function saveProfile() {
-  if (!supabase || !user.value) return
-  savingProfile.value = true
-  message.value = null
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      display_name: profileForm.display_name.trim() || null,
-      ign: profileForm.ign.trim() || null,
-      university: profileForm.university.trim() || null,
-      discord: profileForm.discord.trim() || null,
-    })
-    .eq('id', user.value.id)
-    .select()
-    .single()
-  savingProfile.value = false
-  if (error) message.value = { kind: 'error', text: error.message }
-  else {
-    profile.value = data as Profile
-    message.value = { kind: 'ok', text: 'Profile saved.' }
-  }
-}
-
 async function submitPrelim() {
-  if (!supabase || !user.value) return
-  savingSub.value = true
+  if (!supabase || !player.value) return
+  saving.value = true
   message.value = null
   const { data, error } = await supabase
     .from('prelim_submissions')
     .upsert({
-      user_id: user.value.id,
+      player_id: player.value.id,
       video_url: subForm.video_url.trim(),
       song1: Number(subForm.song1),
       song2: Number(subForm.song2),
       song3: Number(subForm.song3),
       notes: subForm.notes.trim() || null,
       submitted_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' })
+    }, { onConflict: 'player_id' })
     .select()
     .single()
-  savingSub.value = false
+  saving.value = false
   if (error) message.value = { kind: 'error', text: error.message }
   else {
     submission.value = data as Submission
@@ -110,15 +88,16 @@ async function submitPrelim() {
 
 async function signOut() {
   await supabase?.auth.signOut()
-  profile.value = null
+  player.value = null
   submission.value = null
+  isAdmin.value = false
 }
 </script>
 
 <template>
   <div class="container-x pt-14">
     <PageHeader eyebrow="Players" title="Player Portal">
-      Set up your player profile and submit your preliminary round video.
+      For approved players: sign in with your registration email and submit your preliminary round video.
     </PageHeader>
 
     <div class="mt-10">
@@ -134,45 +113,58 @@ async function signOut() {
 
       <p v-else-if="!ready" class="text-fg-muted">Loading…</p>
 
-      <PortalLogin v-else-if="!user" />
+      <div v-else-if="!user">
+        <PortalLogin />
+        <p class="mt-6 text-center text-sm text-fg-muted">
+          Haven't registered yet?
+          <a :href="links.registration" target="_blank" rel="noopener" class="text-rose-light underline underline-offset-4">Fill in the registration form</a>
+          first.
+        </p>
+      </div>
 
-      <p v-else-if="loading" class="text-fg-muted">Loading your profile…</p>
+      <p v-else-if="loading" class="text-fg-muted">Loading your details…</p>
+
+      <!-- Signed in, but not a player (an organiser, or someone not on the list) -->
+      <div v-else-if="!player" class="card max-w-xl p-8">
+        <template v-if="isAdmin">
+          <h2 class="font-display text-xl font-bold text-white">Signed in as an organiser</h2>
+          <p class="mt-2 text-sm break-all text-fg-muted">{{ user.email }}</p>
+          <NuxtLink to="/portal/admin" class="btn-primary mt-6">Open admin dashboard</NuxtLink>
+        </template>
+        <template v-else>
+          <h2 class="font-display text-xl font-bold text-white">You're not on the approved list</h2>
+          <p class="mt-2 text-fg-muted">
+            <strong class="break-all text-white">{{ user.email }}</strong> isn't an approved player. If you've registered,
+            ask us in the <a :href="links.discord" target="_blank" rel="noopener" class="text-rose-light underline underline-offset-4">Discord</a>.
+          </p>
+        </template>
+        <button class="btn-ghost mt-4" @click="signOut">Sign out</button>
+      </div>
 
       <div v-else class="grid gap-8 lg:grid-cols-[1fr_1.3fr]">
-        <!-- Profile -->
+        <!-- Player details (from the registration form, read-only) -->
         <section class="card h-fit p-6 sm:p-8">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 class="font-display text-2xl font-bold text-white">Your profile</h2>
-              <p class="mt-1 text-sm break-all text-fg-muted">{{ user.email }}</p>
+              <p class="eyebrow">Approved player</p>
+              <h2 class="mt-1 font-display text-2xl font-bold text-white">{{ player.ign || player.name }}</h2>
+              <p class="mt-1 text-sm break-all text-fg-muted">{{ player.email }}</p>
             </div>
             <button class="text-sm text-fg-muted underline-offset-4 hover:text-white hover:underline" @click="signOut">Sign out</button>
           </div>
 
-          <form class="mt-6 space-y-4" @submit.prevent="saveProfile">
-            <div>
-              <label for="p-name" class="label">Name</label>
-              <input id="p-name" v-model="profileForm.display_name" class="input" autocomplete="name">
+          <dl class="mt-6 divide-y divide-ink-600/60">
+            <div v-for="d in details" :key="d.label" class="flex justify-between gap-4 py-2.5 text-sm">
+              <dt class="text-fg-muted">{{ d.label }}</dt>
+              <dd class="text-right font-medium text-white">{{ d.value || '—' }}</dd>
             </div>
-            <div>
-              <label for="p-ign" class="label">maimai DX in-game name <span class="text-rose-light">*</span></label>
-              <input id="p-ign" v-model="profileForm.ign" class="input" required placeholder="e.g. ＵＭＡＩ">
-              <p class="mt-1 text-xs text-fg-muted">Must stay the same for the entire tournament.</p>
-            </div>
-            <div>
-              <label for="p-uni" class="label">University <span class="text-rose-light">*</span></label>
-              <input id="p-uni" v-model="profileForm.university" class="input" required placeholder="e.g. IIUM">
-            </div>
-            <div>
-              <label for="p-discord" class="label">Discord username <span class="text-rose-light">*</span></label>
-              <input id="p-discord" v-model="profileForm.discord" class="input" required placeholder="e.g. umai_player">
-            </div>
-            <button type="submit" class="btn-ghost" :disabled="savingProfile">
-              {{ savingProfile ? 'Saving…' : 'Save profile' }}
-            </button>
-          </form>
+          </dl>
+          <p class="mt-4 text-xs text-fg-muted">
+            These come from your registration form. Something wrong? Let us know in the
+            <a :href="links.discord" target="_blank" rel="noopener" class="text-rose-light underline underline-offset-4">Discord</a>.
+          </p>
 
-          <NuxtLink v-if="profile?.is_admin" to="/portal/admin" class="btn-primary mt-8 w-full">Open admin dashboard</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/portal/admin" class="btn-primary mt-8 w-full">Open admin dashboard</NuxtLink>
         </section>
 
         <!-- Prelim submission -->
@@ -199,10 +191,7 @@ async function signOut() {
             <strong>Note from the organisers:</strong> {{ submission.admin_note }}
           </div>
 
-          <p v-if="!profileComplete" class="mt-6 rounded-xl bg-gold/10 p-4 text-sm text-gold">
-            Fill in your in-game name, university and Discord username first.
-          </p>
-          <p v-else-if="prelimWindow.state === 'before'" class="mt-6 rounded-xl bg-peri/10 p-4 text-sm text-peri-light">
+          <p v-if="prelimWindow.state === 'before'" class="mt-6 rounded-xl bg-peri/10 p-4 text-sm text-peri-light">
             Submissions open on {{ formatDate(prelimWindow.opens) }}. Prelim songs will be announced in the Discord.
           </p>
           <div v-else-if="prelimWindow.state === 'closed'" class="mt-6 rounded-xl bg-ink-700/60 p-4 text-sm text-fg-muted">
@@ -217,7 +206,7 @@ async function signOut() {
             <div>
               <label for="s-video" class="label">Video link <span class="text-rose-light">*</span></label>
               <input id="s-video" v-model="subForm.video_url" type="url" required class="input" placeholder="https://youtu.be/… or Google Drive link">
-              <p class="mt-1 text-xs text-fg-muted">Unlisted YouTube or a Google Drive link set to "Anyone with the link".</p>
+              <p class="mt-1 text-xs text-fg-muted">Unlisted YouTube, or a Google Drive link set to "Anyone with the link".</p>
             </div>
 
             <fieldset>
@@ -246,8 +235,8 @@ async function signOut() {
               I played all 3 songs in a single credit on my registered Aime / Banapassport account.
             </label>
 
-            <button type="submit" class="btn-primary w-full" :disabled="savingSub || !subForm.confirm">
-              {{ savingSub ? 'Submitting…' : submission ? 'Update submission' : 'Submit prelim' }}
+            <button type="submit" class="btn-primary w-full" :disabled="saving || !subForm.confirm">
+              {{ saving ? 'Submitting…' : submission ? 'Update submission' : 'Submit prelim' }}
             </button>
             <p v-if="submission" class="text-xs text-fg-muted">
               Last submitted {{ formatDate(submission.submitted_at) }}. Updating puts your entry back under review.

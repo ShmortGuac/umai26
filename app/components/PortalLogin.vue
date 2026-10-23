@@ -1,59 +1,115 @@
 <script setup lang="ts">
 const supabase = useSupabase()!
+const { links } = useAppConfig()
+
+const step = ref<'email' | 'code'>('email')
 const email = ref('')
-const sending = ref(false)
-const sent = ref(false)
+const code = ref('')
+const busy = ref(false)
 const error = ref('')
+const notFound = ref(false)
 
-const redirectTo = () => `${window.location.origin}/portal`
-
-async function signInDiscord() {
+async function sendCode() {
   error.value = ''
-  const { error: err } = await supabase.auth.signInWithOAuth({
-    provider: 'discord',
-    options: { redirectTo: redirectTo(), scopes: 'identify email' },
-  })
+  notFound.value = false
+  busy.value = true
+  const address = email.value.trim().toLowerCase()
+
+  const { data: allowed, error: checkErr } = await supabase.rpc('can_sign_in', { p_email: address })
+  if (checkErr) {
+    busy.value = false
+    error.value = checkErr.message
+    return
+  }
+  if (!allowed) {
+    busy.value = false
+    notFound.value = true
+    return
+  }
+
+  const { error: err } = await supabase.auth.signInWithOtp({ email: address })
+  busy.value = false
   if (err) error.value = err.message
+  else {
+    email.value = address
+    step.value = 'code'
+  }
 }
 
-async function signInEmail() {
+async function verifyCode() {
   error.value = ''
-  sending.value = true
-  const { error: err } = await supabase.auth.signInWithOtp({
-    email: email.value.trim(),
-    options: { emailRedirectTo: redirectTo() },
+  busy.value = true
+  const { error: err } = await supabase.auth.verifyOtp({
+    email: email.value,
+    token: code.value.trim(),
+    type: 'email',
   })
-  sending.value = false
-  if (err) error.value = err.message
-  else sent.value = true
+  busy.value = false
+  // On success the auth listener updates the user and the portal swaps views.
+  if (err) error.value = err.message.includes('expired') || err.message.includes('invalid')
+    ? 'That code is wrong or has expired. Check the latest email, or send a new code.'
+    : err.message
+}
+
+function startOver() {
+  step.value = 'email'
+  code.value = ''
+  error.value = ''
 }
 </script>
 
 <template>
   <div class="card mx-auto max-w-md p-8">
     <h2 class="font-display text-2xl font-bold text-white">Sign in</h2>
-    <p class="mt-2 text-sm text-fg-muted">
-      Use the Discord account you joined the U-mai server with. That's how we'll reach you.
-    </p>
 
-    <button class="btn mt-6 w-full bg-[#5865F2] text-white hover:brightness-110" @click="signInDiscord">
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.8 19.8 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z" /></svg>
-      Continue with Discord
-    </button>
-
-    <div class="my-6 flex items-center gap-3 text-xs text-fg-muted">
-      <span class="h-px flex-1 bg-ink-600" /> or use email <span class="h-px flex-1 bg-ink-600" />
-    </div>
-
-    <p v-if="sent" class="rounded-xl bg-peri/10 p-4 text-sm text-peri-light">
-      Check <strong>{{ email }}</strong> for a sign-in link. Open it in this same browser.
-    </p>
-    <form v-else class="space-y-3" @submit.prevent="signInEmail">
-      <label for="login-email" class="label">Email</label>
-      <input id="login-email" v-model="email" type="email" required autocomplete="email" class="input" placeholder="you@student.university.edu.my">
-      <button type="submit" class="btn-ghost w-full" :disabled="sending">
-        {{ sending ? 'Sending…' : 'Email me a sign-in link' }}
+    <form v-if="step === 'email'" class="mt-6 space-y-4" @submit.prevent="sendCode">
+      <p class="text-sm text-fg-muted">
+        Use the <strong class="text-white">same email you registered with</strong> in the Google Form.
+        We'll email you a sign-in code.
+      </p>
+      <div>
+        <label for="login-email" class="label">Email</label>
+        <input id="login-email" v-model="email" type="email" required autocomplete="email" class="input" placeholder="you@example.com">
+      </div>
+      <button type="submit" class="btn-primary w-full" :disabled="busy">
+        {{ busy ? 'Checking…' : 'Send me a code' }}
       </button>
+
+      <div v-if="notFound" class="rounded-xl bg-gold/10 p-4 text-sm text-gold" role="alert">
+        <p class="font-semibold">We couldn't find that email on the approved players list.</p>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-gold/90">
+          <li>Make sure it's the exact email you used in the registration form.</li>
+          <li>Approval happens after we check your payment and student ID, so it may take a little while after registering.</li>
+          <li>Still stuck? Ask us in the <a :href="links.discord" target="_blank" rel="noopener" class="underline underline-offset-4">Discord</a>.</li>
+        </ul>
+      </div>
+    </form>
+
+    <form v-else class="mt-6 space-y-4" @submit.prevent="verifyCode">
+      <p class="text-sm text-fg-muted">
+        We sent a code to <strong class="break-all text-white">{{ email }}</strong>. It may take a minute, and check your spam folder too.
+      </p>
+      <div>
+        <label for="login-code" class="label">Sign-in code</label>
+        <input
+          id="login-code"
+          v-model="code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern="[0-9]{6,10}"
+          maxlength="10"
+          required
+          class="input text-center font-display text-2xl tracking-[0.4em] tabular-nums"
+          placeholder="••••••"
+        >
+      </div>
+      <button type="submit" class="btn-primary w-full" :disabled="busy">
+        {{ busy ? 'Signing in…' : 'Sign in' }}
+      </button>
+      <div class="flex justify-between text-sm">
+        <button type="button" class="text-fg-muted hover:text-white" @click="startOver">← Use a different email</button>
+        <button type="button" class="text-fg-muted hover:text-white" :disabled="busy" @click="sendCode">Resend code</button>
+      </div>
     </form>
 
     <p v-if="error" class="mt-4 text-sm text-rose-light" role="alert">{{ error }}</p>
