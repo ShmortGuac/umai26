@@ -87,6 +87,8 @@ const faqs = [
       </div>
     </section>
 
+    <MascotSection />
+
     <!-- Timeline -->
     <section class="container-x mt-24">
       <p class="eyebrow">Timeline</p>
