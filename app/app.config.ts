@@ -12,7 +12,7 @@ export default defineAppConfig({
     donationGiftThreshold: 'RM15',
   },
   timeline: [
-    { label: 'Registrations', start: '2026-10-10', end: '2026-11-07', display: '10 Oct – 7 Nov' },
+    { label: 'Registrations', start: '2026-10-10', end: '2026-11-29', display: '10 Oct – 29 Nov', note: 'Still open during prelims' },
     { label: 'Preliminary Rounds', start: '2026-11-15', end: '2026-11-29', display: '15 Nov – 29 Nov', note: 'Online' },
     { label: 'Knockout Rounds', start: '2026-12-12', end: '2026-12-12', display: '12 Dec', note: 'Sunway Wangsa Walk' },
   ],
