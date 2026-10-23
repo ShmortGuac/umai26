@@ -24,8 +24,8 @@ export default defineAppConfig({
     songs: ['Song 1 — TBA', 'Song 2 — TBA', 'Song 3 — TBA'],
   },
   links: {
-    registration: '#',
-    discord: '#',
+    registration: 'https://forms.gle/Z4g3ZGGrT1d4BSFU9',
+    discord: 'https://discord.com/invite/qUEvdDE8XY',
     donation: '#',
     // e.g. '/img/donation-qr.png' after dropping the image into public/img
     donationQr: '',
