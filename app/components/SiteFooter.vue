@@ -11,9 +11,9 @@ const { links, event } = useAppConfig()
           {{ event.tagline }} — a maimai DX tournament by students, for students.
           Finals at {{ event.venue }} on 12 December 2026.
         </p>
-        <div class="mt-6 flex items-center gap-3 text-sm text-fg-muted">
-          <img src="/img/iiumai.svg" alt="iiumai" class="h-10 w-10">
-          <span>Organised by iiumai</span>
+        <div class="mt-6">
+          <p class="text-xs tracking-widest text-fg-muted uppercase">Organised by</p>
+          <img src="/img/iiumai-text.png" alt="iiumai" class="mt-2 h-10 w-auto">
         </div>
       </div>
       <div>
