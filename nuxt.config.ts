@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-01',
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    // Published CSV link of the sheet holding the registration count (env: NUXT_REGISTRATION_COUNT_CSV).
+    registrationCountCsv: '',
+  },
   vite: {
     plugins: [tailwindcss()],
   },
