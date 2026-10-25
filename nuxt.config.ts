@@ -27,6 +27,8 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap' },
       ],
+      // Vercel Web Analytics. The script only exists on Vercel deployments, so it's left out of local builds.
+      script: process.env.VERCEL ? [{ src: '/_vercel/insights/script.js', defer: true }] : [],
     },
   },
 })
