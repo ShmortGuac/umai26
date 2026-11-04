@@ -13,11 +13,11 @@ export default defineAppConfig({
   },
   // Update these as donations come in. The total is shown as-is, so keep it in sync with the places.
   prizePool: {
-    total: 'RM150',
+    total: 'RM250',
     places: [
-      { place: '1st', amount: 'RM75' },
-      { place: '2nd', amount: 'RM45' },
-      { place: '3rd', amount: 'RM30' },
+      { place: '1st', amount: 'RM125' },
+      { place: '2nd', amount: 'RM75' },
+      { place: '3rd', amount: 'RM50' },
     ],
   },
   timeline: [
