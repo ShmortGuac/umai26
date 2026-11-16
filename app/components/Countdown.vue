@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const props = defineProps<{ target: string }>()
+const props = withDefaults(defineProps<{ target: string, label?: string }>(), {
+  label: 'Countdown to the finals',
+})
 
 const now = ref<number | null>(null)
 let timer: ReturnType<typeof setInterval> | undefined
@@ -25,7 +27,7 @@ const values = computed(() => {
 </script>
 
 <template>
-  <div class="flex gap-2 sm:gap-3" role="timer" aria-label="Countdown to the finals">
+  <div class="flex gap-2 sm:gap-3" role="timer" :aria-label="label">
     <div
       v-for="(label, i) in labels"
       :key="label"

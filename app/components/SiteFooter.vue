@@ -24,6 +24,7 @@ const { links, event } = useAppConfig()
       <div>
         <h3 class="font-display font-semibold text-white">Tournament</h3>
         <ul class="mt-3 space-y-2 text-sm text-fg-muted">
+          <li><NuxtLink to="/prelims" class="hover:text-white">Prelims</NuxtLink></li>
           <li><NuxtLink to="/rules" class="hover:text-white">Rulebook</NuxtLink></li>
           <li><NuxtLink to="/schedule" class="hover:text-white">Schedule &amp; Venue</NuxtLink></li>
           <li><NuxtLink to="/donate" class="hover:text-white">Donate</NuxtLink></li>

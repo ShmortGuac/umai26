@@ -6,6 +6,7 @@ watch(() => route.fullPath, () => { open.value = false })
 
 const nav = [
   { to: '/', label: 'Home' },
+  { to: '/prelims', label: 'Prelims' },
   { to: '/rules', label: 'Rules' },
   { to: '/schedule', label: 'Schedule' },
   { to: '/donate', label: 'Donate' },

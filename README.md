@@ -21,12 +21,6 @@ npm run dev            # http://localhost:3000
 | Downloadable rulebook PDF | `public/U-mai26-Rulebook.pdf` |
 | Logos | `public/img/` |
 
-## Player portal
-
-A player portal for prelim submissions (Supabase, email-code login, CSV import of approved players, admin review)
-was built and then removed until the login approach is decided: the registration form doesn't collect emails.
-It's in the git history at commit `4d5adcd` if you want to bring it back.
-
 ## Deploy (Vercel)
 
 Import the GitHub repo in Vercel. It detects Nuxt automatically, so just deploy.
