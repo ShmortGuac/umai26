@@ -86,18 +86,14 @@ export const rules: RuleSection[] = [
 ]
 
 export const daySchedule = [
-  { time: '10:00 – 11:00', event: 'Venue setup / Player warm-up / Registration' },
-  { time: '11:00 – 11:15', event: 'Introduction' },
-  { time: '11:15 – 12:45', event: 'Upper Bracket Round 1 & Lower Bracket Round 1', match: true },
-  { time: '12:45 – 14:00', event: 'Lunch Break' },
-  { time: '14:00 – 14:30', event: 'Upper Bracket Quarter Finals', match: true },
-  { time: '14:30 – 15:00', event: 'Lower Bracket Round 2', match: true },
-  { time: '15:30 – 16:00', event: 'Upper Bracket Semi Finals & Lower Bracket Round 3', match: true },
-  { time: '16:30 – 17:00', event: 'Lower Bracket Round 4', match: true },
-  { time: '17:00 – 17:30', event: 'Upper Bracket Finals & Lower Bracket Round 5', match: true },
-  { time: '18:15 – 18:30', event: 'Lower Bracket Finals', match: true },
-  { time: '19:00 – 19:30', event: 'Grand Finals', match: true, highlight: true },
-  { time: '19:45 – 20:00', event: 'Prize Giving Ceremony / Photoshoot' },
+  { time: '10:00 – 11:00', event: 'Venue Setup + Registration' },
+  { time: '11:00 – 11:15', event: 'Opening' },
+  { time: '11:15 – 12:45', event: 'Round of 16', match: true },
+  { time: '13:45 – 15:45', event: 'Quarter Finals', match: true },
+  { time: '16:05 – 17:05', event: 'Semi Finals', match: true },
+  { time: '17:25 – 18:25', event: 'Finals', match: true },
+  { time: '18:45 – 19:15', event: 'Grand Finals', match: true, highlight: true },
+  { time: '19:15 – 19:45', event: 'Prize Giving and Photoshoot' },
 ]
 
 // Minimal, safe markdown: escape HTML first, then turn **x** into <strong>.
