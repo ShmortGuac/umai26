@@ -89,6 +89,7 @@ export const daySchedule = [
   { time: '10:00 – 11:00', event: 'Venue Setup + Registration' },
   { time: '11:00 – 11:15', event: 'Opening' },
   { time: '11:15 – 12:45', event: 'Round of 16', match: true },
+  { time: '12:45 – 13:45', event: 'Lunch Break' },
   { time: '13:45 – 15:45', event: 'Quarter Finals', match: true },
   { time: '16:05 – 17:05', event: 'Semi Finals', match: true },
   { time: '17:25 – 18:25', event: 'Finals', match: true },
